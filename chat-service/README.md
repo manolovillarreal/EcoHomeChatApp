@@ -38,13 +38,13 @@ Create a `.env` file from `.env.example` and configure:
 Example:
 
 ```env
-PORT=3000
-DB_HOST=aws-1-us-east-1.pooler.supabase.com
-DB_USER=postgres.xxxxxxxxxxxxx
+PORT=your_port_number
+DB_HOST=your_database_host
+DB_USER=your_database_user
 DB_PASS=your_database_password
-DB_NAME=postgres
-DB_PORT=5432
-DB_SSL=true
+DB_NAME=your_database_name
+DB_PORT=your_database_port
+DB_SSL= true
 DB_SSL_REJECT_UNAUTHORIZED=false
 JWT_SECRET=your_shared_jwt_secret
 NODE_ENV=development
