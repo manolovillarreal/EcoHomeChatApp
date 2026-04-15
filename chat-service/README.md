@@ -1,6 +1,8 @@
 # chat-service
 
-Standalone chat microservice for EcoHome Store. It uses Express, Socket.IO, and PostgreSQL with logical isolation through the `chat` schema.
+Microservicio de chat de EcoHome Store. Usa Express, Socket.IO y PostgreSQL con aislamiento en el esquema `chat`.
+
+Este modulo hace parte de un **caso academico**.
 
 ## Project structure
 
@@ -9,6 +11,7 @@ chat-service/
   server.js
   package.json
   .env.example
+  public/
   sql/
     init.sql
   src/
@@ -71,7 +74,7 @@ This service does not create foreign keys and does not read from other schemas.
 
 ```bash
 npm install
-npm run build:client
+npm run build
 npm start
 ```
 
@@ -81,23 +84,15 @@ For development with auto-reload:
 npm run dev
 ```
 
-The frontend lives in `public/` and is served directly by Express. Rebuild it after any frontend changes:
+`npm run build` existe para plataformas como Render, aunque este servicio no requiere compilacion real.
 
-```bash
-npm run build:client
-```
+## Frontend servido por Express
 
-## Frontend routes
+Si `public/` contiene el build generado por `chat-app`, este servicio tambien entrega la SPA en:
 
+- `/`
 - `/login`
 - `/chat`
-
-## Frontend configuration
-
-Client runtime config is defined in `public/index.html` through `window.__ECOHOME_CONFIG__`.
-
-- `AUTH_API_BASE`: currently set to `https://ecohomeapi.onrender.com`
-- `CHAT_URL`: leave empty to connect Socket.IO to the same origin serving the page
 
 ## Socket.IO behavior
 

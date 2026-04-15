@@ -1,30 +1,34 @@
 # chat-app
 
-Frontend Vite + React for the EcoHome Store internal chat.
+Frontend de EcoHome Chat construido con **React + Vite**.
 
-## Initialize with Vite
+Este modulo hace parte de un **caso academico** y consume:
 
-```bash
-npm create vite@latest chat-app -- --template react
-```
+- un servicio externo de autenticacion que entrega JWT
+- el microservicio `chat-service` para tiempo real y persistencia
 
-This repository already contains the generated app structure adapted for the chat flow.
-
-## Run locally
+## Comandos
 
 ```bash
 npm install
-copy .env.example .env
 npm run dev
 ```
 
-## Build
+Build:
 
 ```bash
 npm run build
 ```
 
-## Environment variables
+Deploy del build hacia `../chat-service/public`:
 
-- `VITE_AUTH_API_BASE`: auth service base URL
-- `VITE_CHAT_URL`: chat microservice Socket.IO URL
+```bash
+npm run deploy
+```
+
+## Variables de entorno
+
+Usa un archivo `.env` basado en `.env.example`.
+
+- `VITE_AUTH_API_BASE`: URL base del servicio de autenticacion
+- `VITE_CHAT_URL`: URL del microservicio de chat. Si se deja vacia, usa el mismo origen del navegador.

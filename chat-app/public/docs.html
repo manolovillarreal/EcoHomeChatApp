@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoHome Chat Documentation</title>
+    <style>
+      :root {
+        --bg: #f7f9fb;
+        --panel: #ffffff;
+        --text: #1f2933;
+        --muted: #52606d;
+        --border: #d9e2ec;
+        --accent: #2f855a;
+        --code: #eef2f7;
+        --shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      .layout {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 32px 20px 56px;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 24px;
+      }
+
+      .sidebar,
+      .content section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        padding: 20px;
+      }
+
+      .sidebar h1 {
+        margin: 0 0 8px;
+        font-size: 1.35rem;
+      }
+
+      .sidebar p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .sidebar nav a {
+        display: block;
+        padding: 8px 0;
+        color: #243b53;
+        text-decoration: none;
+      }
+
+      .sidebar nav a:hover {
+        color: var(--accent);
+      }
+
+      .content {
+        display: grid;
+        gap: 18px;
+      }
+
+      .content section {
+        padding: 24px;
+      }
+
+      h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 1.2rem;
+      }
+
+      p,
+      li {
+        line-height: 1.65;
+      }
+
+      .lead {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .mini-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        background: #fcfdff;
+      }
+
+      .mini-card strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: var(--code);
+        font-family: Consolas, monospace;
+        font-size: 0.95em;
+      }
+
+      pre {
+        margin: 0;
+        padding: 16px;
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #0f1720;
+        color: #f8fafc;
+      }
+
+      .tag {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #e6fffa;
+        color: var(--accent);
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      @media (max-width: 860px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="layout">
+      <aside class="sidebar">
+        <h1>EcoHome Chat</h1>
+        <p>Documentación general del sistema de chat interno desarrollado para un caso académico.</p>
+        <span class="tag">Proyecto académico</span>
+        <nav>
+          <a href="#overview">Descripción general</a>
+          <a href="#features">Funcionalidades</a>
+          <a href="#architecture">Arquitectura</a>
+          <a href="#events">Eventos principales</a>
+          <a href="#routes">Rutas y acceso</a>
+          <a href="#deploy">Despliegue</a>
+          <a href="#repository">Repositorio</a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <section id="overview">
+          <h2>EcoHome Chat</h2>
+          <p class="lead">
+            EcoHome Chat corresponde al desarrollo del sistema de mensajería interna para EcoHome Store.
+            El proyecto fue construido como <strong>caso académico</strong> para demostrar integración entre
+            frontend, autenticación JWT, WebSockets y persistencia en PostgreSQL.
+          </p>
+        </section>
+
+        <section id="features">
+          <h2>Funcionalidades principales</h2>
+          <ul>
+            <li>Inicio de sesión usando JWT emitido por un servicio de autenticación externo.</li>
+            <li>Chat global en tiempo real para todos los usuarios conectados.</li>
+            <li>Listado de usuarios en línea con presencia activa.</li>
+            <li>Mensajería privada uno a uno entre usuarios conectados.</li>
+            <li>Persistencia de mensajes dentro del esquema <code>chat</code> en PostgreSQL.</li>
+            <li>Historial reciente para chat global y conversaciones privadas.</li>
+            <li>Frontend desplegable dentro del backend mediante archivos estáticos en <code>public/</code>.</li>
+          </ul>
+        </section>
+
+        <section id="architecture">
+          <h2>Arquitectura</h2>
+          <div class="grid">
+            <article class="mini-card">
+              <strong>chat-app</strong>
+              Frontend en React + Vite. Maneja login, vista de chat, presencia, mensajes privados y despliegue del build.
+            </article>
+            <article class="mini-card">
+              <strong>chat-service</strong>
+              Backend en Node.js + Express + Socket.IO. Valida JWT, coordina eventos en tiempo real y persiste mensajes.
+            </article>
+            <article class="mini-card">
+              <strong>PostgreSQL</strong>
+              Almacena mensajes en el esquema <code>chat</code> con soporte para mensajes globales y privados.
+            </article>
+            <article class="mini-card">
+              <strong>Auth Service</strong>
+              Servicio externo encargado de autenticar usuarios y emitir el token JWT consumido por frontend y chat.
+            </article>
+          </div>
+        </section>
+
+        <section id="events">
+          <h2>Eventos principales</h2>
+          <pre><code>message-history            -> historial de chat global
+new-message                -> mensaje global
+users:online               -> usuarios conectados
+private-message            -> mensaje privado 1:1
+private-history            -> solicitud de historial privado
+private-message-history    -> historial privado entre dos usuarios</code></pre>
+        </section>
+
+        <section id="routes">
+          <h2>Rutas y acceso</h2>
+          <ul>
+            <li><code>GET /health</code> - comprobación de estado del microservicio.</li>
+            <li><code>/</code> - frontend del chat servido por Express.</li>
+            <li><code>/login</code> - ruta de acceso de la SPA.</li>
+            <li><code>/chat</code> - interfaz principal del chat.</li>
+            <li>Handshake Socket.IO autenticado con <code>auth: { token }</code>.</li>
+          </ul>
+        </section>
+
+        <section id="deploy">
+          <h2>Documentación y despliegue</h2>
+          <p>
+            El frontend se construye en <code>chat-app</code> y puede copiarse hacia
+            <code>chat-service/public</code> mediante el comando <code>npm run deploy</code>.
+            El backend queda preparado para servir la aplicación compilada junto con la API y los sockets.
+          </p>
+          <pre><code>chat-app
+npm run deploy
+
+chat-service
+npm install &amp;&amp; npm run build
+npm start</code></pre>
+        </section>
+
+        <section id="repository">
+          <h2>Repositorio</h2>
+          <p>
+            Código fuente disponible en:
+            <a href="https://github.com/manolovillarreal/EcoHomeChatApp">
+              https://github.com/manolovillarreal/EcoHomeChatApp
+            </a>
+          </p>
+          <p>EcoHome Chat - Sistema de chat interno para caso académico.</p>
+        </section>
+      </div>
+    </main>
+  </body>
+  </html>

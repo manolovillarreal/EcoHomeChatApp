@@ -31,6 +31,9 @@ export default function Header({ currentUser, onLogout, onMenuToggle }) {
       </div>
 
       <div className="header__actions">
+        <a className="header__docs" href="/docs.html" target="_blank" rel="noreferrer">
+          Docs
+        </a>
         <div className="header__user">
           <svg className="header__user-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path
