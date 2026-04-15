@@ -1,0 +1,14 @@
+chat-app/node_modules/
+chat-app/dist/
+chat-app/.env
+chat-app/.env.local
+chat-app/.env.*.local
+chat-service/node_modules/
+chat-service/.env
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
