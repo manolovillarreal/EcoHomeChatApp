@@ -125,6 +125,8 @@ async function createMessage({
   toUserNameSnapshot = null,
   type = MESSAGE_TYPES.GLOBAL
 }) {
+  console.log('toUserNameSnapshot', toUserNameSnapshot);
+  
   const query = `
     INSERT INTO chat.messages (user_id, to_user_id, type, text, user_name_snapshot, to_user_name_snapshot)
     VALUES ($1, $2, $3, $4, $5, $6)

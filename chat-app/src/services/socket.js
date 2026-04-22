@@ -18,5 +18,6 @@ export function sendGlobalMessage(socket, text) {
 }
 
 export function sendPrivateMessage(socket, toUserId, toUsername, text) {
+  console.log(toUserId,toUsername);  
   socket.emit('private-message', { toUserId, toUsername, text });
 }
