@@ -252,7 +252,8 @@ export default function Chat() {
     }
 
     if (activeRoom.type === 'private' && activeRoom.targetUserId) {
-      sendPrivateMessage(socketInstance, activeRoom.targetUserId, text);
+      const toUsername = activeUser?.username || activeUser?.name || null;
+      sendPrivateMessage(socketInstance, activeRoom.targetUserId, toUsername, text);
       return;
     }
 

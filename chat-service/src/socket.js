@@ -147,6 +147,7 @@ function registerChatSocket(io) {
         }
 
         const toUserId = typeof payload?.toUserId === 'string' ? payload.toUserId.trim() : '';
+        const toUsername = typeof payload?.toUsername === 'string' ? payload.toUsername.trim() : null;
         const text = typeof payload?.text === 'string' ? payload.text.trim() : '';
 
         if (!toUserId) {
@@ -163,6 +164,7 @@ function registerChatSocket(io) {
           toUserId,
           text,
           userNameSnapshot: username,
+          toUserNameSnapshot: toUsername,
           type: MESSAGE_TYPES.PRIVATE
         });
 

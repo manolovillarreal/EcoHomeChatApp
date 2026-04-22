@@ -17,6 +17,6 @@ export function sendGlobalMessage(socket, text) {
   socket.emit('new-message', { text });
 }
 
-export function sendPrivateMessage(socket, toUserId, text) {
-  socket.emit('private-message', { toUserId, text });
+export function sendPrivateMessage(socket, toUserId, toUsername, text) {
+  socket.emit('private-message', { toUserId, toUsername, text });
 }

@@ -122,15 +122,16 @@ async function createMessage({
   text,
   userNameSnapshot,
   toUserId = null,
+  toUserNameSnapshot = null,
   type = MESSAGE_TYPES.GLOBAL
 }) {
   const query = `
-    INSERT INTO chat.messages (user_id, to_user_id, type, text, user_name_snapshot)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING id, user_id, to_user_id, type, text, user_name_snapshot, created_at
+    INSERT INTO chat.messages (user_id, to_user_id, type, text, user_name_snapshot, to_user_name_snapshot)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, user_id, to_user_id, type, text, user_name_snapshot, to_user_name_snapshot, created_at
   `;
 
-  const values = [userId, toUserId, type, text, userNameSnapshot];
+  const values = [userId, toUserId, type, text, userNameSnapshot, toUserNameSnapshot];
   const { rows } = await pool.query(query, values);
   return rows[0];
 }
