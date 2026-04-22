@@ -60,12 +60,12 @@ export default function Sidebar({ rooms, users, activeRoom, onRoomSelect, isOpen
 
         <section className="sidebar__section">
           <div className="sidebar__heading-row">
-            <h2 className="sidebar__heading">Online users</h2>
+            <h2 className="sidebar__heading">Conversations</h2>
             <span className="sidebar__count">{users.length}</span>
           </div>
           <div className="sidebar__list">
             {users.length === 0 ? (
-              <p className="sidebar__empty">No teammates online.</p>
+              <p className="sidebar__empty">No private conversations yet.</p>
             ) : (
               users.map((user) => {
                 const displayName = user.name || user.username || 'Unknown user';
@@ -85,9 +85,9 @@ export default function Sidebar({ rooms, users, activeRoom, onRoomSelect, isOpen
                     </span>
                     <span className="sidebar__user-content">
                       <strong>{displayName}</strong>
-                      <small>Online</small>
+                      <small>{user.isOnline ? 'Online' : 'Offline'}</small>
                     </span>
-                    <span className="sidebar__presence" aria-hidden="true" />
+                    {user.isOnline ? <span className="sidebar__presence" aria-hidden="true" /> : null}
                   </button>
                 );
               })

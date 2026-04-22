@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import ChatArea from '../components/ChatArea.jsx';
+import { getConversations } from '../services/conversations.js';
 import {
   createChatSocket,
   requestPrivateHistory,
@@ -47,6 +48,7 @@ export default function Chat() {
 
   const [globalMessages, setGlobalMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [conversations, setConversations] = useState([]);
   const [privateMessages, setPrivateMessages] = useState({});
   const [activeRoom, setActiveRoom] = useState({ type: 'global', targetUserId: '' });
   const [status, setStatus] = useState('Connecting...');
@@ -54,8 +56,63 @@ export default function Chat() {
   const [socketInstance, setSocketInstance] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const sidebarUsers = useMemo(() => {
+    const onlineUsersById = new Map(
+      onlineUsers.map((user) => [
+        String(user.userId),
+        {
+          userId: String(user.userId),
+          username: user.username || user.name || null,
+          isOnline: true
+        }
+      ])
+    );
+
+    const mergedUsers = conversations.map((conversation) => {
+      const conversationUserId = String(conversation.userId);
+      const onlineUser = onlineUsersById.get(conversationUserId);
+
+      if (onlineUser) {
+        onlineUsersById.delete(conversationUserId);
+      }
+
+      return {
+        userId: conversationUserId,
+        username: onlineUser?.username || conversation.username || 'Unknown user',
+        name: onlineUser?.username || conversation.username || 'Unknown user',
+        isOnline: Boolean(onlineUser),
+        lastMessageAt: conversation.lastMessageAt || null
+      };
+    });
+
+    for (const onlineUser of onlineUsersById.values()) {
+      mergedUsers.push({
+        userId: onlineUser.userId,
+        username: onlineUser.username || 'Unknown user',
+        name: onlineUser.username || 'Unknown user',
+        isOnline: true,
+        lastMessageAt: null
+      });
+    }
+
+    return mergedUsers.sort((left, right) => {
+      if (left.isOnline !== right.isOnline) {
+        return left.isOnline ? -1 : 1;
+      }
+
+      const leftTime = left.lastMessageAt ? new Date(left.lastMessageAt).getTime() : 0;
+      const rightTime = right.lastMessageAt ? new Date(right.lastMessageAt).getTime() : 0;
+
+      if (leftTime !== rightTime) {
+        return rightTime - leftTime;
+      }
+
+      return String(left.username).localeCompare(String(right.username));
+    });
+  }, [conversations, onlineUsers]);
+
   const activeUser =
-    onlineUsers.find((user) => String(user.userId) === String(activeRoom.targetUserId)) || null;
+    sidebarUsers.find((user) => String(user.userId) === String(activeRoom.targetUserId)) || null;
   const activeMessages =
     activeRoom.type === 'private' && activeRoom.targetUserId
       ? privateMessages[activeRoom.targetUserId] || []
@@ -67,6 +124,19 @@ export default function Chat() {
     { id: 'global', label: 'Global chat', subtitle: 'Everyone', type: 'global' },
     { id: 'private', label: 'Private', subtitle: 'Direct messages', type: 'private' }
   ];
+
+  async function loadConversations() {
+    if (!token) {
+      return;
+    }
+
+    try {
+      const nextConversations = await getConversations(token);
+      setConversations(nextConversations);
+    } catch (conversationError) {
+      setError(conversationError.message || 'Unable to load conversations');
+    }
+  }
 
   useEffect(() => {
     if (!token) {
@@ -80,6 +150,7 @@ export default function Chat() {
     socket.on('connect', () => {
       setStatus('Connected');
       setError('');
+      loadConversations();
     });
 
     socket.on('disconnect', () => {
@@ -130,6 +201,7 @@ export default function Chat() {
         ...current,
         [otherUserId]: [...(current[otherUserId] || []), message]
       }));
+      loadConversations();
     });
 
     socket.on('chat-error', (payload) => {
@@ -143,6 +215,10 @@ export default function Chat() {
   }, [currentUser.id, navigate, token]);
 
   useEffect(() => {
+    loadConversations();
+  }, [token]);
+
+  useEffect(() => {
     if (
       activeRoom.type !== 'private' ||
       !activeRoom.targetUserId ||
@@ -153,16 +229,6 @@ export default function Chat() {
 
     requestPrivateHistory(socketInstance, activeRoom.targetUserId);
   }, [activeRoom, socketInstance]);
-
-  useEffect(() => {
-    if (
-      activeRoom.type === 'private' &&
-      activeRoom.targetUserId &&
-      !onlineUsers.some((user) => String(user.userId) === String(activeRoom.targetUserId))
-    ) {
-      setActiveRoom({ type: 'private', targetUserId: '' });
-    }
-  }, [activeRoom, onlineUsers]);
 
   function handleLogout() {
     clearTokens();
@@ -219,7 +285,7 @@ export default function Chat() {
       <div className="chat-page__body">
         <Sidebar
           rooms={rooms}
-          users={onlineUsers}
+          users={sidebarUsers}
           currentUser={currentUser}
           activeRoom={activeRoom}
           onRoomSelect={handleRoomSelect}

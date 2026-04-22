@@ -7,8 +7,10 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 
 const { config } = require('./src/config');
+const { authenticateHttpRequest } = require('./src/auth');
 const { pool } = require('./src/db');
 const { registerChatSocket } = require('./src/socket');
+const { getPrivateConversations, resolveUserId } = require('./src/services/messageService');
 
 const app = express();
 const publicDir = path.join(__dirname, 'public');
@@ -30,6 +32,15 @@ app.get('/health', async (_req, res) => {
     res.status(200).json({ status: 'ok' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.get('/api/conversations', authenticateHttpRequest, async (req, res) => {
+  try {
+    const conversations = await getPrivateConversations(resolveUserId(req.user));
+    res.status(200).json(conversations);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load conversations' });
   }
 });
 

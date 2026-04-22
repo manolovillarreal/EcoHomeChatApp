@@ -94,6 +94,27 @@ Si `public/` contiene el build generado por `chat-app`, este servicio tambien en
 - `/login`
 - `/chat`
 
+## REST API
+
+- `GET /health`
+- `GET /api/conversations`
+
+`GET /api/conversations` requiere `Authorization: Bearer <token>` y devuelve las conversaciones privadas del usuario autenticado ordenadas por mensaje mas reciente.
+
+Example response:
+
+```json
+[
+  {
+    "userId": "target-user-id",
+    "username": "Alice",
+    "lastMessageId": 42,
+    "lastMessageText": "hello",
+    "lastMessageAt": "2026-04-21T20:15:00.000Z"
+  }
+]
+```
+
 ## Socket.IO behavior
 
 - Client must connect with `socket.handshake.auth.token`.
