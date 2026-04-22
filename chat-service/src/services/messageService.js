@@ -54,51 +54,63 @@ async function getRecentPrivateMessages({ userId, otherUserId, limit = 10 }) {
 
 async function getPrivateConversations(userId) {
   const query = `
-    WITH private_messages AS (
-      SELECT
-        id,
-        user_id,
-        to_user_id,
-        text,
-        created_at,
-        CASE
-          WHEN user_id = $1 THEN to_user_id
-          ELSE user_id
-        END AS other_user_id
-      FROM chat.messages
-      WHERE COALESCE(type, 'global') = 'private'
-        AND (user_id = $1 OR to_user_id = $1)
-    ),
-    latest_conversations AS (
-      SELECT DISTINCT ON (other_user_id)
-        other_user_id,
-        id AS last_message_id,
-        text AS last_message_text,
-        created_at AS last_message_at
-      FROM private_messages
-      ORDER BY other_user_id, created_at DESC, id DESC
-    )
+   WITH private_messages AS (
+  SELECT
+    id,
+    user_id,
+    to_user_id,
+    text,
+    created_at,
+    CASE
+      WHEN user_id = $1 THEN to_user_id
+      ELSE user_id
+    END AS other_user_id
+  FROM chat.messages
+  WHERE COALESCE(type, 'global') = 'private'
+    AND (user_id = $1 OR to_user_id = $1)
+),
+
+latest_conversations AS (
+  SELECT DISTINCT ON (other_user_id)
+    other_user_id,
+    id AS last_message_id,
+    text AS last_message_text,
+    created_at AS last_message_at
+  FROM private_messages
+  ORDER BY other_user_id, created_at DESC, id DESC
+)
+
+SELECT
+  lc.other_user_id AS "userId",
+
+  (
     SELECT
-      latest_conversations.other_user_id AS "userId",
-      (
-        SELECT message.user_name_snapshot
-        FROM chat.messages AS message
-        WHERE COALESCE(message.type, 'global') = 'private'
-          AND message.user_id = latest_conversations.other_user_id
-          AND (
-            (message.user_id = $1 AND message.to_user_id = latest_conversations.other_user_id)
-            OR
-            (message.user_id = latest_conversations.other_user_id AND message.to_user_id = $1)
-          )
-          AND message.user_name_snapshot IS NOT NULL
-        ORDER BY message.created_at DESC, message.id DESC
-        LIMIT 1
-      ) AS username,
-      latest_conversations.last_message_id AS "lastMessageId",
-      latest_conversations.last_message_text AS "lastMessageText",
-      latest_conversations.last_message_at AS "lastMessageAt"
-    FROM latest_conversations
-    ORDER BY "lastMessageAt" DESC, "lastMessageId" DESC
+      CASE
+        WHEN m.user_id = lc.other_user_id
+          THEN m.user_name_snapshot
+        ELSE m.to_user_name_snapshot
+      END
+    FROM chat.messages m
+    WHERE COALESCE(m.type, 'global') = 'private'
+      AND (
+        (m.user_id = $1 AND m.to_user_id = lc.other_user_id)
+        OR
+        (m.user_id = lc.other_user_id AND m.to_user_id = $1)
+      )
+      AND (
+        m.user_name_snapshot IS NOT NULL
+        OR m.to_user_name_snapshot IS NOT NULL
+      )
+    ORDER BY m.created_at DESC, m.id DESC
+    LIMIT 1
+  ) AS username,
+
+  lc.last_message_id AS "lastMessageId",
+  lc.last_message_text AS "lastMessageText",
+  lc.last_message_at AS "lastMessageAt"
+
+FROM latest_conversations lc
+ORDER BY "lastMessageAt" DESC, "lastMessageId" DESC;
   `;
 
   const { rows } = await pool.query(query, [userId]);
